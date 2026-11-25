@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Select Chess Piece Style</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: radial-gradient(1200px 600px at 50% -10%, #262637 0%, #1e1e2e 55%) fixed #1e1e2e; color: #cdd6f4; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 30px 20px; }
+h1 { margin-bottom: 10px; font-size: 2rem; text-align: center; }
+.subtitle { margin-bottom: 30px; color: #a6adc8; text-align: center; font-size: 1rem; }
+.theme-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; max-width: 1200px; width: 100%; }
+.theme-card { background: #313244; border: 2px solid #45475a; border-radius: 12px; padding: 34px 20px 20px; cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden; }
+.theme-card:hover { border-color: #89b4fa; transform: translateY(-3px); box-shadow: 0 10px 30px rgba(137, 180, 250, 0.2); }
+.theme-card:focus-visible { outline: 2px solid #89b4fa; outline-offset: 2px; }
+.theme-card.selected { border-color: #a6e3a1; background: #3a4352; }
+.theme-card.selected::after { content: '✓ SELECTED'; position: absolute; top: 12px; right: 12px; background: #a6e3a1; color: #1e1e2e; font-size: 0.7rem; font-weight: 700; padding: 4px 8px; border-radius: 4px; }
+.theme-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; text-align: center; color: #cdd6f4; }
+.theme-desc { font-size: 0.75rem; color: #6c7086; margin-bottom: 15px; text-align: center; line-height: 1.4; }
+.pieces-preview { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; width: 100%; }
+.piece-item { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #181825; border-radius: 6px; border: 1px solid #45475a; }
+.piece-item svg { width: 34px; height: 34px; display: block; }
+.piece-label { font-size: 0.65rem; color: #6c7086; margin-top: 6px; text-align: center; }
+.btn-row { margin-top: 40px; display: flex; gap: 15px; justify-content: center; width: 100%; max-width: 500px; }
+.start-btn { padding: 14px 32px; font-size: 1rem; font-weight: 600; background: #a6e3a1; color: #1e1e2e; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+.start-btn:hover { background: #baf2a8; }
+.start-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cancel-btn { padding: 14px 32px; font-size: 1rem; font-weight: 600; background: #45475a; color: #cdd6f4; border: none; border-radius: 8px; cursor: pointer; }
+.cancel-btn:hover { background: #6c7086; }
+.storage-info { margin-top: 25px; font-size: 0.75rem; color: #6c7086; text-align: center; max-width: 600px; line-height: 1.5; }
+@media (max-width: 640px) { .theme-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<h1>Choose Piece Style</h1>
+<p class="subtitle">Select how the chess pieces should look. Your choice is saved for future games.</p>
+<div class="theme-grid" id="themeGrid" role="radiogroup" aria-label="Chess piece style"></div>
+<div class="btn-row">
+  <button class="cancel-btn" onclick="location.href='chess.html'">Cancel &amp; Play</button>
+  <button class="start-btn" id="startBtn" disabled onclick="startGame()">Start Game with Selected Style</button>
+</div>
+<p class="storage-info">Selected style is saved in your browser and will apply automatically when you open chess.html.</p>
+
+<script src="pieces.js"></script>
+<script>
+let currentSelection = getSavedSetId();
+const startBtn = document.getElementById('startBtn');
+const themeGrid = document.getElementById('themeGrid');
+const LABELS = { K: 'King', Q: 'Queen', R: 'Rook', B: 'Bishop', N: 'Knight', P: 'Pawn' };
+
+function renderThemes() {
+  themeGrid.innerHTML = '';
+  Object.keys(PIECE_SETS).forEach(themeId => {
+    const theme = PIECE_SETS[themeId];
+    const isSelected = currentSelection === themeId;
+
+    const card = document.createElement('div');
+    card.className = 'theme-card' + (isSelected ? ' selected' : '');
+    card.dataset.set = themeId;
+    card.tabIndex = 0;
+    card.setAttribute('role', 'radio');
+    card.setAttribute('aria-checked', String(isSelected));
+    card.setAttribute('aria-label', theme.name);
+    card.addEventListener('click', () => selectTheme(themeId, card));
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTheme(themeId, card); }
+      else if (['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].includes(e.key)) {
+        e.preventDefault();
+        const cards = [...themeGrid.querySelectorAll('.theme-card')];
+        const dir = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : -1;
+        const next = cards[(cards.indexOf(card) + dir + cards.length) % cards.length];
+        next.focus(); selectTheme(next.dataset.set, next);
+      }
+    });
+
+    const name = document.createElement('div');
+    name.className = 'theme-name'; name.textContent = theme.name;
+    const desc = document.createElement('div');
+    desc.className = 'theme-desc'; desc.textContent = theme.desc;
+    const preview = document.createElement('div');
+    preview.className = 'pieces-preview';
+
+    ['wK','bK','wQ','bQ','wR','bR','wB','bB','wN','bN','wP','bP'].forEach(p => {
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText = 'display:flex;flex-direction:column;align-items:center;';
+      wrapper.title = (p[0] === 'w' ? 'White ' : 'Black ') + LABELS[p[1]];
+      const item = document.createElement('div');
+      item.className = 'piece-item';
+      item.innerHTML = theme.pieces[p];
+      const label = document.createElement('div');
+      label.className = 'piece-label';
+      label.textContent = LABELS[p[1]];
+      wrapper.appendChild(item); wrapper.appendChild(label);
+      preview.appendChild(wrapper);
+    });
+
+    card.appendChild(name); card.appendChild(desc); card.appendChild(preview);
+    themeGrid.appendChild(card);
+  });
+}
+
+function selectTheme(themeId, cardElement) {
+  currentSelection = themeId;
+  document.querySelectorAll('.theme-card').forEach(c => {
+    const sel = c === cardElement;
+    c.classList.toggle('selected', sel);
+    c.setAttribute('aria-checked', String(sel));
+  });
+  startBtn.disabled = false;
+}
+
+function startGame() {
+  saveSetId(currentSelection);
+  window.location.href = 'chess.html';
+}
+
+renderThemes();
+startBtn.disabled = false;
+</script>
+</body>
+</html>
