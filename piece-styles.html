@@ -36,10 +36,10 @@ h1 { margin-bottom: 10px; font-size: 2rem; text-align: center; }
 <p class="subtitle">Select how the chess pieces should look. Your choice is saved for future games.</p>
 <div class="theme-grid" id="themeGrid" role="radiogroup" aria-label="Chess piece style"></div>
 <div class="btn-row">
-  <button class="cancel-btn" onclick="location.href='chess.html'">Cancel &amp; Play</button>
+  <button class="cancel-btn" onclick="location.href='index.html'">Cancel &amp; Play</button>
   <button class="start-btn" id="startBtn" disabled onclick="startGame()">Start Game with Selected Style</button>
 </div>
-<p class="storage-info">Selected style is saved in your browser and will apply automatically when you open chess.html.</p>
+<p class="storage-info">Selected style is saved in your browser and will apply automatically when you open index.html.</p>
 
 <script src="pieces.js"></script>
 <script>
@@ -111,7 +111,7 @@ function selectTheme(themeId, cardElement) {
 
 function startGame() {
   saveSetId(currentSelection);
-  window.location.href = 'chess.html';
+  window.location.href = 'index.html';
 }
 
 renderThemes();
