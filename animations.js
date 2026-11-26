@@ -1,4 +1,4 @@
-/* animations.js — cartoon presentation layer with graceful stride-locked walking and weapon combat.
+/* animations.js — presentation layer with graceful stride-locked walking and weapon combat.
    Rules stay 100% untouched in chess.html.
    HTML: <script src="animations.js"></script> after pieces.js. */
 (function () {
@@ -24,7 +24,7 @@ function tween(ms, step) {
 
 /* ---------- self-install: CSS + layers + chip ---------- */
 const style = document.createElement('style');
-style.textContent = `#board .piece{display:none} #actors,#fxlayer{position:absolute;inset:6px;pointer-events:none} #actors{z-index:3}#fxlayer{z-index:5} #animChip{min-height:16px;margin-top:8px;font-size:.72rem;color:#6c7086;text-align:center} .actor{position:absolute;left:0;top:0;width:12.5%;height:12.5%;display:flex;align-items:center;justify-content:center} .actor svg{width:92%;height:92%;display:block} .a-in{position:relative;width:100%;height:100%;transform:scaleX(var(--face,1))} .a-bob,.a-pop{width:100%;height:100%} .a-shadow{position:absolute;left:50%;bottom:3.5%;width:60%;height:9%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(50% 50% at 50% 50%, rgba(12,9,4,.32), rgba(12,9,4,0) 72%);transition:opacity .25s} .actor.idle .a-bob{animation:breathe 2.4s ease-in-out infinite} .actor.gait .a-bob{animation:none} .actor.walking.nolegs .a-bob{animation:waddle .6s ease-in-out infinite} .actor.hop .a-bob{animation:hopJump .34s ease-out} .actor.celebrating .a-bob{animation:celeBounce .55s ease-out} .actor.punching .a-bob{animation:punchLunge .24s cubic-bezier(.2,.8,.3,1) forwards} .actor.hurt .a-in,.actor.shudder .a-in{animation:shudder .14s linear 2} .actor.tumbling .a-bob{animation:tumbleDyn .48s cubic-bezier(.3,.7,.4,1) forwards} .actor.tumbling .a-shadow{opacity:.45} .actor.poofing .a-pop{animation:poofPop .3s ease-out forwards} .actor.poofing .a-shadow{opacity:0} .actor.dizzy .a-bob{animation:dizzy .6s ease-in-out} .actor.casting .wpn[data-wpn="staff"]{filter:drop-shadow(0 0 2.5px #7fd4ff) drop-shadow(0 0 5px rgba(79,168,255,.7))} #boardWrapper.quake{animation:quake .32s linear} @keyframes quake{0%,100%{transform:translate(0,0)}20%{transform:translate(-3px,2px)}40%{transform:translate(3px,-2px)}60%{transform:translate(-2px,-2px)}80%{transform:translate(2px,2px)}} @keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.6%)}} @keyframes waddle{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-3%) rotate(-2deg)}75%{transform:translateY(-3%) rotate(2deg)}} @keyframes hopJump{0%,100%{transform:translateY(0)}40%{transform:translateY(-10%)}} @keyframes celeBounce{0%,100%{transform:translateY(0)}25%{transform:translateY(-12%)}50%{transform:translateY(0)}75%{transform:translateY(-8%)}} @keyframes punchLunge{0%{transform:translate(0,0)}35%{transform:translate(calc(var(--lx,6px)*-.4),calc(var(--ly,0px)*-.4))}70%,100%{transform:translate(var(--lx,6px),var(--ly,0px))}} @keyframes tumbleDyn{0%{transform:none}25%{transform:translate(calc(var(--tx,0px)*.4),calc(var(--ty,0px)*.4)) rotate(calc(var(--rot,80deg)*.33))}55%{transform:translate(var(--tx,0px),var(--ty,0px)) rotate(var(--rot,80deg))}75%{transform:translate(calc(var(--tx,0px)*.8),var(--ty,0px)) rotate(calc(var(--rot,80deg)*.85))}100%{transform:translate(var(--tx,0px),var(--ty,0px)) rotate(var(--rot,80deg))}} @keyframes poofPop{0%{transform:scale(1);opacity:1}40%{transform:scale(1.15)}100%{transform:scale(1.35);opacity:0;filter:blur(2px)}} @keyframes shudder{0%,100%{transform:scaleX(var(--face,1))}25%{transform:scaleX(var(--face,1)) translateX(-4%)}75%{transform:scaleX(var(--face,1)) translateX(4%)}} @keyframes dizzy{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}50%{transform:rotate(8deg)}75%{transform:rotate(-6deg)}} .star{position:absolute;width:52px;height:52px;margin:-26px;background:#ffd35c;clip-path:polygon(50% 0,63% 32%,98% 35%,72% 55%,82% 90%,50% 70%,18% 90%,28% 55%,2% 35%,37% 32%);animation:starPop .35s ease-out forwards} @keyframes starPop{0%{transform:scale(0) rotate(-30deg);opacity:0}30%{opacity:1}60%{transform:scale(1.25)}100%{transform:scale(1.1);opacity:0}} .spark{position:absolute;width:14px;height:14px;margin:-7px;background:#ffe08a;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0% 50%,38% 38%);animation:sparkFly .55s ease-out forwards} .spark.arcane{background:#9fe0ff} @keyframes sparkFly{from{transform:rotate(var(--a,0deg)) translateX(4px);opacity:1}to{transform:rotate(var(--a,0deg)) translateX(30px) scale(0);opacity:0}} .ring{position:absolute;width:44px;height:44px;margin:-22px;border:3px solid #ffd35c;border-radius:50%;animation:ringExpand .45s ease-out forwards} .ring.arcane{border-color:#7fd4ff;box-shadow:0 0 14px rgba(127,212,255,.7)} @keyframes ringExpand{from{transform:scale(.2);opacity:.9}to{transform:scale(1.6);opacity:0}} .dust{position:absolute;width:12px;height:12px;margin:-6px;background:#d8cbb8;border-radius:50%;animation:dustUp .4s ease-out forwards} @keyframes dustUp{to{transform:translate(-8px,-12px) scale(1.4);opacity:0}} .fx-slash{position:absolute;width:56px;height:56px;margin:-28px;border-radius:50%;border:5px solid transparent;border-top-color:#fff3c4;border-right-color:#ffd35c;filter:drop-shadow(0 0 6px rgba(255,211,92,.8));animation:slashArc .3s ease-out forwards} .fx-slash.cleave{width:72px;height:72px;margin:-36px;border-width:6px;border-top-color:#ffffff;border-right-color:#ff8a5c;filter:drop-shadow(0 0 8px rgba(255,138,92,.8))} .fx-slash.stab{width:34px;height:34px;margin:-17px;border-width:4px} @keyframes slashArc{0%{transform:rotate(calc(var(--a,0deg) - 95deg)) scale(.5);opacity:0}25%{opacity:1}100%{transform:rotate(calc(var(--a,0deg) + 45deg)) scale(1.15);opacity:0}} .fx-shock{position:absolute;width:60px;height:22px;margin:-11px -30px;border:3px solid #ffd35c;border-radius:50%;box-shadow:0 0 10px rgba(255,211,92,.6);animation:shockWave .45s ease-out forwards} @keyframes shockWave{from{transform:scale(.2);opacity:.95}to{transform:scale(2.1);opacity:0}} .fx-pierce{position:absolute;width:48px;height:4px;margin:-2px -24px;background:linear-gradient(90deg,transparent,#fff3c4,#ffd35c);border-radius:2px;animation:pierceFly .3s ease-out forwards} @keyframes pierceFly{from{transform:rotate(var(--a,0deg)) scaleX(.2);opacity:1}to{transform:rotate(var(--a,0deg)) scaleX(1.5);opacity:0}} .fx-bash{position:absolute;width:34px;height:34px;margin:-17px;border:3px solid #fff3c4;border-radius:50%;animation:ringExpand .35s ease-out forwards} .fx-bolt{position:absolute;width:16px;height:16px;margin:-8px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#eaf7ff,#7fd4ff 45%,#2f7fd4);box-shadow:0 0 12px #7fd4ff,0 0 26px rgba(79,168,255,.6)}`;
+style.textContent = `#board .piece{display:none} #actors,#fxlayer{position:absolute;inset:6px;pointer-events:none} #actors{z-index:3}#fxlayer{z-index:5} #animChip{min-height:16px;margin-top:8px;font-size:.72rem;color:#6c7086;text-align:center} .actor{position:absolute;left:0;top:0;width:12.5%;height:12.5%;display:flex;align-items:center;justify-content:center} .actor svg{width:92%;height:92%;display:block;overflow:visible} .a-in{position:relative;width:100%;height:100%;transform:scaleX(var(--face,1))} .a-bob,.a-pop{width:100%;height:100%} .a-shadow{position:absolute;left:50%;bottom:3.5%;width:60%;height:9%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(50% 50% at 50% 50%, rgba(12,9,4,.32), rgba(12,9,4,0) 72%);transition:opacity .25s} .actor[data-type="N"] .a-shadow{width:76%} .actor.idle .a-bob{animation:breathe 2.4s ease-in-out infinite} .actor.gait .a-bob{animation:none} .actor.walking.nolegs .a-bob{animation:waddle .6s ease-in-out infinite} .actor.hop .a-bob{animation:hopJump .34s ease-out} .actor.celebrating .a-bob{animation:celeBounce .55s ease-out} .actor.punching .a-bob{animation:punchLunge .24s cubic-bezier(.2,.8,.3,1) forwards} .actor.hurt .a-in,.actor.shudder .a-in{animation:shudder .14s linear 2} .actor.tumbling .a-bob{animation:tumbleDyn .48s cubic-bezier(.3,.7,.4,1) forwards} .actor.tumbling .a-shadow{opacity:.45} .actor.poofing .a-pop{animation:poofPop .3s ease-out forwards} .actor.poofing .a-shadow{opacity:0} .actor.dizzy .a-bob{animation:dizzy .6s ease-in-out} .actor.casting .wpn[data-wpn="staff"]{filter:drop-shadow(0 0 2.5px #7fd4ff) drop-shadow(0 0 5px rgba(79,168,255,.7))} #boardWrapper.quake{animation:quake .32s linear} @keyframes quake{0%,100%{transform:translate(0,0)}20%{transform:translate(-3px,2px)}40%{transform:translate(3px,-2px)}60%{transform:translate(-2px,-2px)}80%{transform:translate(2px,2px)}} @keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.6%)}} @keyframes waddle{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-3%) rotate(-2deg)}75%{transform:translateY(-3%) rotate(2deg)}} @keyframes hopJump{0%,100%{transform:translateY(0)}40%{transform:translateY(-10%)}} @keyframes celeBounce{0%,100%{transform:translateY(0)}25%{transform:translateY(-12%)}50%{transform:translateY(0)}75%{transform:translateY(-8%)}} @keyframes punchLunge{0%{transform:translate(0,0)}35%{transform:translate(calc(var(--lx,6px)*-.4),calc(var(--ly,0px)*-.4))}70%,100%{transform:translate(var(--lx,6px),var(--ly,0px))}} @keyframes tumbleDyn{0%{transform:none}25%{transform:translate(calc(var(--tx,0px)*.4),calc(var(--ty,0px)*.4)) rotate(calc(var(--rot,80deg)*.33))}55%{transform:translate(var(--tx,0px),var(--ty,0px)) rotate(var(--rot,80deg))}75%{transform:translate(calc(var(--tx,0px)*.8),var(--ty,0px)) rotate(calc(var(--rot,80deg)*.85))}100%{transform:translate(var(--tx,0px),var(--ty,0px)) rotate(var(--rot,80deg))}} @keyframes poofPop{0%{transform:scale(1);opacity:1}40%{transform:scale(1.15)}100%{transform:scale(1.35);opacity:0;filter:blur(2px)}} @keyframes shudder{0%,100%{transform:scaleX(var(--face,1))}25%{transform:scaleX(var(--face,1)) translateX(-4%)}75%{transform:scaleX(var(--face,1)) translateX(4%)}} @keyframes dizzy{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}50%{transform:rotate(8deg)}75%{transform:rotate(-6deg)}} .star{position:absolute;width:52px;height:52px;margin:-26px;background:#ffd35c;clip-path:polygon(50% 0,63% 32%,98% 35%,72% 55%,82% 90%,50% 70%,18% 90%,28% 55%,2% 35%,37% 32%);animation:starPop .35s ease-out forwards} @keyframes starPop{0%{transform:scale(0) rotate(-30deg);opacity:0}30%{opacity:1}60%{transform:scale(1.25)}100%{transform:scale(1.1);opacity:0}} .spark{position:absolute;width:14px;height:14px;margin:-7px;background:#ffe08a;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0% 50%,38% 38%);animation:sparkFly .55s ease-out forwards} .spark.arcane{background:#9fe0ff} @keyframes sparkFly{from{transform:rotate(var(--a,0deg)) translateX(4px);opacity:1}to{transform:rotate(var(--a,0deg)) translateX(30px) scale(0);opacity:0}} .ring{position:absolute;width:44px;height:44px;margin:-22px;border:3px solid #ffd35c;border-radius:50%;animation:ringExpand .45s ease-out forwards} .ring.arcane{border-color:#7fd4ff;box-shadow:0 0 14px rgba(127,212,255,.7)} @keyframes ringExpand{from{transform:scale(.2);opacity:.9}to{transform:scale(1.6);opacity:0}} .dust{position:absolute;width:12px;height:12px;margin:-6px;background:#d8cbb8;border-radius:50%;animation:dustUp .4s ease-out forwards} @keyframes dustUp{to{transform:translate(-8px,-12px) scale(1.4);opacity:0}} .fx-slash{position:absolute;width:56px;height:56px;margin:-28px;border-radius:50%;border:5px solid transparent;border-top-color:#fff3c4;border-right-color:#ffd35c;filter:drop-shadow(0 0 6px rgba(255,211,92,.8));animation:slashArc .3s ease-out forwards} .fx-slash.cleave{width:72px;height:72px;margin:-36px;border-width:6px;border-top-color:#ffffff;border-right-color:#ff8a5c;filter:drop-shadow(0 0 8px rgba(255,138,92,.8))} .fx-slash.stab{width:34px;height:34px;margin:-17px;border-width:4px} @keyframes slashArc{0%{transform:rotate(calc(var(--a,0deg) - 95deg)) scale(.5);opacity:0}25%{opacity:1}100%{transform:rotate(calc(var(--a,0deg) + 45deg)) scale(1.15);opacity:0}} .fx-shock{position:absolute;width:60px;height:22px;margin:-11px -30px;border:3px solid #ffd35c;border-radius:50%;box-shadow:0 0 10px rgba(255,211,92,.6);animation:shockWave .45s ease-out forwards} @keyframes shockWave{from{transform:scale(.2);opacity:.95}to{transform:scale(2.1);opacity:0}} .fx-pierce{position:absolute;width:54px;height:5px;margin:-2.5px -27px;background:linear-gradient(90deg,transparent,#fff3c4,#ffd35c);border-radius:2px;box-shadow:0 0 8px rgba(255,211,92,.8);animation:pierceFly .32s ease-out forwards} @keyframes pierceFly{from{transform:rotate(var(--a,0deg)) scaleX(.2);opacity:1}to{transform:rotate(var(--a,0deg)) scaleX(1.6);opacity:0}} .fx-bash{position:absolute;width:34px;height:34px;margin:-17px;border:3px solid #fff3c4;border-radius:50%;animation:ringExpand .35s ease-out forwards} .fx-bolt{position:absolute;width:16px;height:16px;margin:-8px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#eaf7ff,#7fd4ff 45%,#2f7fd4);box-shadow:0 0 12px #7fd4ff,0 0 26px rgba(79,168,255,.6)}`;
 document.head.appendChild(style);
 document.getElementById('boardWrapper').insertAdjacentHTML('beforeend',
   '<div id="actors"></div><div id="fxlayer"></div><div id="animChip"></div>');
@@ -64,10 +64,10 @@ const actorAt = (r, c) => actors.get(key(r, c));
 const kingActor = col => [...actors.values()].find(a => a.dataset.color === col && a.dataset.type === 'K');
 const face = (el, d) => { el.dataset.face = String(d); el.querySelector('.a-in').style.setProperty('--face', d); };
 
-/* ---------- graceful stride-locked walk ----------
-   Position eases in/out; leg phase is locked to distance travelled so feet
-   plant against the board instead of scrambling. Body rises ~2% per step and
-   leans gently into the journey, then settles upright on arrival. */
+/* ---------- graceful stride-locked walk & realistic quadruped trot ----------
+   Position eases in/out; leg phase is locked to distance travelled so feet/hooves
+   plant against the board instead of sliding. Quadrupeds (fl/fr/bl/br) use a
+   diagonal-pair trot (fl+br vs fr+bl) with realistic neck/head nod. */
 function slide(el, dr, dc, ms, opts = {}) {
   return new Promise(res => {
     const m = /translate\(([-\d.]+)px,\s*([-\d.]+)px\)/.exec(el.style.transform) || [0, 0, 0];
@@ -75,14 +75,15 @@ function slide(el, dr, dc, ms, opts = {}) {
     const dx = dc * cell, dy = dr * cell, dist = Math.hypot(dr, dc);
     if (Math.abs(dc) > 0.01) face(el, dc < 0 ? -1 : 1);
     const legs = [...el.querySelectorAll('.leg')];
+    const head = el.querySelector('.horse-head');
+    const isQuad = legs.length >= 4;
     const legged = legs.length > 0 && dist > 0.04;
     const bob = el.querySelector('.a-bob');
     el.classList.remove('idle');
     el.classList.add(legged ? 'gait' : 'walking');
     const gallop = opts.gait === 'gallop';
-    const cycles = dist * (gallop ? 0.65 : 0.9);
-    const ampMul = (gallop ? 1.25 : 1) * 0.62;
-    const arc = opts.arc ? cell * 0.2 : 0;
+    const cycles = dist * (isQuad ? (gallop ? 1.15 : 0.95) : (gallop ? 0.65 : 0.9));
+    const ampMul = isQuad ? (gallop ? 0.92 : 0.72) : ((gallop ? 1.25 : 1) * 0.62);
     const last = {};
     const t0 = performance.now();
     function frame(t) {
@@ -91,19 +92,33 @@ function slide(el, dr, dc, ms, opts = {}) {
       if (legged) {
         const ph = e * cycles * Math.PI * 2;
         for (const g of legs) {
-          const s = Math.sin(ph + (g.dataset.leg === 'r' ? Math.PI : 0));
+          const id = g.dataset.leg;
+          /* Diagonal trot pairing for 4-legged horse: fl & br in phase; fr & bl opposite */
+          const phaseOff = (id === 'r' || id === 'fr' || id === 'bl') ? Math.PI : 0;
+          const s = Math.sin(ph + phaseOff);
           const a = s * (+g.dataset.amp || 16) * ampMul;
-          last[g.dataset.leg] = a;
+          last[id] = a;
           g.setAttribute('transform', 'rotate(' + a.toFixed(2) + ' ' + g.dataset.px + ' ' + g.dataset.py + ')');
         }
-        const by = -Math.abs(Math.sin(ph)) * cell * 0.016 - Math.sin(k * Math.PI) * arc;
-        const lean = Math.sin(k * Math.PI) * 2.2;
-        bob.style.transform = 'translateY(' + by.toFixed(2) + 'px) rotate(' + lean.toFixed(2) + 'deg)';
+        if (isQuad) {
+          /* Grounded horse trot: subtle suspension lift & forward pitch, natural neck nod */
+          const by = -Math.abs(Math.sin(ph)) * cell * 0.014;
+          const pitch = Math.sin(ph * 2) * 1.1 + Math.sin(k * Math.PI) * 1.4;
+          bob.style.transform = 'translateY(' + by.toFixed(2) + 'px) rotate(' + pitch.toFixed(2) + 'deg)';
+          if (head) {
+            const nod = -Math.abs(Math.sin(ph)) * 3.8;
+            head.setAttribute('transform', 'rotate(' + nod.toFixed(2) + ' 20 15)');
+          }
+        } else {
+          const by = -Math.abs(Math.sin(ph)) * cell * 0.016;
+          const lean = Math.sin(k * Math.PI) * 2.2;
+          bob.style.transform = 'translateY(' + by.toFixed(2) + 'px) rotate(' + lean.toFixed(2) + 'deg)';
+        }
       }
       if (k < 1) requestAnimationFrame(frame);
       else {
         const from = { ...last }, t1 = performance.now();
-        const endBob = legged ? -Math.abs(Math.sin(cycles * Math.PI * 2)) * cell * 0.016 : 0;
+        const endBob = legged ? -Math.abs(Math.sin(cycles * Math.PI * 2)) * cell * (isQuad ? 0.014 : 0.016) : 0;
         (function settle(t) {
           const q = Math.min(1, (t - t1) / 220), eo = easeOut(q);
           if (legged) {
@@ -113,6 +128,10 @@ function slide(el, dr, dc, ms, opts = {}) {
                 const a = (from[g.dataset.leg] || 0) * (1 - eo);
                 g.setAttribute('transform', 'rotate(' + a.toFixed(2) + ' ' + g.dataset.px + ' ' + g.dataset.py + ')');
               }
+            }
+            if (head) {
+              if (q >= 1) head.removeAttribute('transform');
+              else head.setAttribute('transform', 'rotate(' + (-2 * (1 - eo)).toFixed(2) + ' 20 15)');
             }
             bob.style.transform = 'translateY(' + (endBob * (1 - eo)).toFixed(2) + 'px)';
           }
@@ -143,15 +162,15 @@ function quake() {
 
 /* ---------- weapon system ---------- */
 const PROFILES = {
-  sword:  { wind: -38, hit: 105,  windMs: 150, hitMs: 110, recMs: 300, thrust: 0 },
-  gsword: { wind: 62,  hit: -108, windMs: 170, hitMs: 120, recMs: 320, thrust: 0 },
-  hammer: { wind: 150, hit: -100, windMs: 220, hitMs: 130, recMs: 360, thrust: 0 },
-  lance:  { wind: 90,  hit: 90,   windMs: 150, hitMs: 100, recMs: 300, thrust: 5 },
-  staff:  { wind: -12, hit: 22,   windMs: 180, hitMs: 150, recMs: 340, thrust: 0 },
-  dagger: { wind: -24, hit: 140,  windMs: 120, hitMs: 100, recMs: 280, thrust: 0 },
-  shield: { wind: -6,  hit: 0,    windMs: 100, hitMs: 100, recMs: 240, thrust: 3.4 }
+  sword:  { wind: -38, hit: 105,  windMs: 150, hitMs: 110, recMs: 300, thrust: 0,  windTx: 0 },
+  gsword: { wind: 62,  hit: -108, windMs: 170, hitMs: 120, recMs: 320, thrust: 0,  windTx: 0 },
+  hammer: { wind: 150, hit: -100, windMs: 220, hitMs: 130, recMs: 360, thrust: 0,  windTx: 0 },
+  lance:  { wind: -14, hit: 6,    windMs: 180, hitMs: 110, recMs: 320, thrust: 15, windTx: -3.5 },
+  staff:  { wind: -12, hit: 22,   windMs: 180, hitMs: 150, recMs: 340, thrust: 0,  windTx: 0 },
+  dagger: { wind: -24, hit: 140,  windMs: 120, hitMs: 100, recMs: 280, thrust: 0,  windTx: 0 },
+  shield: { wind: -6,  hit: 0,    windMs: 100, hitMs: 100, recMs: 240, thrust: 3.4, windTx: 0 }
 };
-const STRIKE_LABEL = { K: 'Sword slash', Q: 'Greatsword cleave', R: 'Warhammer slam', N: 'Lance thrust', B: 'Arcane bolt', P: 'Shield bash + stab' };
+const STRIKE_LABEL = { K: 'Sword slash', Q: 'Greatsword cleave', R: 'Warhammer slam', N: 'Cavalry lance thrust', B: 'Arcane bolt', P: 'Shield bash + stab' };
 function weaponsOf(el) {
   const o = {};
   el.querySelectorAll('.wpn').forEach(g => { o[g.dataset.wpn] = g; });
@@ -163,8 +182,9 @@ function wpnSetter(g) {
 }
 async function strike(g, p) {
   const set = wpnSetter(g);
-  await tween(p.windMs, k => set(p.wind * easeOut(k), 0));
-  await tween(p.hitMs, k => { const e = easeIn(k); set(p.wind + (p.hit - p.wind) * e, p.thrust * e); });
+  const wtx = p.windTx || 0;
+  await tween(p.windMs, k => { const e = easeOut(k); set(p.wind * e, wtx * e); });
+  await tween(p.hitMs, k => { const e = easeIn(k); set(p.wind + (p.hit - p.wind) * e, wtx + (p.thrust - wtx) * e); });
 }
 async function recover(g, p) {
   const set = wpnSetter(g);
@@ -249,9 +269,10 @@ async function weaponCombat(att, def, ux, uy, targetR, targetC, inPlace) {
     else { await knockDown(def, ux, uy, 96, true); await poof(def, tx, ty, false); }
   } else if (kind === 'lance') {
     spawnFX('fx-pierce', tx, ty - 6, ang);
-    for (let i = 0; i < 4; i++) spawnFX('spark', tx, ty - 6, ang + (i - 1.5) * 24);
+    spawnFX('star', tx, ty - 8);
+    for (let i = 0; i < 5; i++) spawnFX('spark', tx, ty - 6, ang + (i - 2) * 22);
     if (inPlace) { def.classList.add('shudder'); await wait(240); await poof(def, tx, ty, false); }
-    else { await knockDown(def, ux, uy, 40, false); spawnFX('dust', tx, groundY); await poof(def, tx, ty, false); }
+    else { await knockDown(def, ux, uy, 68, false); spawnFX('dust', tx, groundY); await poof(def, tx, ty, false); }
   } else {
     spawnFX(kind === 'gsword' ? 'fx-slash cleave' : 'fx-slash', tx, ty - 6, ang);
     spawnFX('star', tx, ty - 8);
@@ -278,14 +299,14 @@ async function animateMove(mv) {
     setChip('Approaching…');
     const len = Math.hypot(dr, dc) || 1;
     const ux = dc / len, uy = dr / len;
-    const HALT = 0.72;
+    const HALT = isKnight ? 0.85 : 0.72;
     const approach = Math.max(0.1, len - HALT);
     const hr = uy * approach, hc = ux * approach;
-    await slide(att, hr, hc, travelMs(approach), { gait, arc: isKnight });
+    await slide(att, hr, hc, travelMs(approach), { gait });
     if (Math.abs(dc) > 0.01) face(att, dc < 0 ? -1 : 1);
     const cell = cellPx();
     const armed = Object.keys(weaponsOf(att)).length > 0;
-    const lunge = armed ? 0.14 : 0.22;
+    const lunge = isKnight ? 0.24 : (armed ? 0.14 : 0.22);
     att.style.setProperty('--lx', (ux * cell * lunge) + 'px');
     att.style.setProperty('--ly', (uy * cell * lunge) + 'px');
     att.classList.add('punching');
@@ -307,7 +328,7 @@ async function animateMove(mv) {
     await wait(550); att.classList.remove('celebrating');
 
   } else if (def) {
-    await slide(att, dr, dc, travelMs(Math.hypot(dr, dc)), { gait, arc: isKnight });
+    await slide(att, dr, dc, travelMs(Math.hypot(dr, dc)), { gait });
     const ep = center(defSq.r, defSq.c), h = cellPx() / 2;
     const ux = Math.sign(defSq.c - to.c) || 1;
     face(att, ux);
@@ -325,7 +346,7 @@ async function animateMove(mv) {
 
   } else {
     setChip('Walking…');
-    await slide(att, dr, dc, travelMs(Math.hypot(dr, dc)), { gait, arc: isKnight });
+    await slide(att, dr, dc, travelMs(Math.hypot(dr, dc)), { gait });
     if (att.classList.contains('nolegs')) {
       att.classList.add('hop'); await wait(340); att.classList.remove('hop');
     }
